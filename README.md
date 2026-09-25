@@ -36,9 +36,27 @@ polymarket_whale_tracker/
 ├── test_connection.py     # Hálózati és API kapcsolat-ellenőrző segédszkript
 ├── requirements.txt       # Szükséges Python könyvtárak
 └── README.md              # Rendszerleírás és dokumentáció
-📐 Matematikai és Döntési Logika1. Opportunity Score (0 – 100 pont)Az algoritmus az alábbi faktorokat súlyozza:Konszenzus Arány (max. 35 pont): A domináns kimenetel tőkeértéke a teljes bálna-kitettséghez viszonyítva.Bálnák Száma (max. 25 pont): Hány különálló top kereskedő van ugyanazon a kimenetelen (8+ bálnánál éri el a maximumot).Kereskedői Minőség (max. 20 pont): A domináns oldalon álló bálnák átlagos nyerési aránya (Win Rate).Tőke Koncentráció (max. 15 pont): Logaritmikusan skálázott dollár-kitettség.Árelőny (max. 5 pont): Mennyire van még diszkont az aktuális piaci áron (1 - ár).2. Bináris Opciós Kelly-méretezésA modell predikciós piacokra optimalizált Kelly-képletet használ:$$f^* = \lambda \cdot \frac{p - c}{1 - c}$$$c \in (0, 1)$: a piac aktuális belépési ára (implikált piaci esély),$p$: a bálnák konszenzusa és átlagos találati aránya alapján korrigált becsült valószínűség,$\lambda$: kockázati szorzó (alapértelmezett: $0.5$ a Fél-Kelly stratégiához a variancia csökkentése érdekében),A javasolt tétösszeg maximum a teljes tőke 10%-a lehet az egyedi pozíciókockázat elkerülésére.🚀 Telepítés és Beüzemelés1. ElőfeltételekPython 3.10 vagy újabb.Hálózati kapcsolat: Magyarországi internetszolgáltatók esetén az SNI/DPI blokkolás miatt az API eléréséhez ajánlott az ingyenes Cloudflare 1.1.1.1 with WARP (vagy tetszőleges VPN / Proxy) használata.2. Függőségek telepítéseBash# Klónozd a tárolót
-git clone [https://github.com/](https://github.com/)<felhasznalonev>/polymarket-whale-tracker.git
-cd polymarket-whale-tracker
+```
+📐 Matematikai és Döntési Logika
+1. Opportunity Score (0 – 100 pont)
+Az algoritmus az alábbi faktorokat súlyozza:
+
+Konszenzus Arány (max. 35 pont): A domináns kimenetel tőkeértéke a teljes bálna-kitettséghez viszonyítva.
+
+Bálnák Száma (max. 25 pont): Hány különálló top kereskedő van ugyanazon a kimenetelen (8+ bálnánál éri el a maximumot).
+
+Kereskedői Minőség (max. 20 pont): A domináns oldalon álló bálnák átlagos nyerési aránya (Win Rate).
+
+Tőke Koncentráció (max. 15 pont): Logaritmikusan skálázott dollár-kitettség.
+
+Árelőny (max. 5 pont): Mennyire van még diszkont az aktuális piaci áron (1 - ár).
+
+2. Bináris Opciós Kelly-méretezés
+A modell predikciós piacokra optimalizált Kelly-képletet használ:
+```
+$$f^* = \lambda \cdot \frac{p - c}{1 - c}$$
+$c \in (0, 1)$: a piac aktuális belépési ára (implikált piaci esély),$p$: a bálnák konszenzusa és átlagos találati aránya alapján korrigált becsült valószínűség,$\lambda$: kockázati szorzó (alapértelmezett: $0.5$ a Fél-Kelly stratégiához a variancia csökkentése érdekében),A javasolt tétösszeg maximum a teljes tőke 10%-a lehet az egyedi pozíciókockázat elkerülésére.
+```
 
 # Virtuális környezet létrehozása és aktiválása (opcionális, de javasolt)
 python -m venv venv
