@@ -1,117 +1,144 @@
 # 🐋 Polymarket Whale Consensus & Alpha Radar
 
-Valós idejű, intézményi méretű megbízásokat és bálna-tőkeáramlásokat figyelő döntéstámogató rendszer a **Polymarket** predikciós piacaihoz. Az alkalmazás automatikusan azonosítja a legeredményesebb kereskedőket, klaszterezést végez az aktív pozícióikon, kimutatja a csoportos konszenzust (smart money overlap), és a **Fél-Kelly-kritérium** alapján optimális tétméret-javaslatot ad.
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)](https://github.com/cyberakos/polymarket-whale-tracker)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-2.7%2B-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![HTTPX](https://img.shields.io/badge/HTTPX-0.27%2B-10998E?style=for-the-badge)](https://www.python-httpx.org/)
+[![Pandas](https://img.shields.io/badge/Pandas-2.2%2B-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-5.22%2B-3F4F75?style=for-the-badge&logo=plotly&logoColor=white)](https://plotly.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+A production-grade, real-time decision-support system and analytics dashboard built on **Polymarket** prediction market data. It tracks smart money movements, extracts open positions of top-performing wallets (whales), clusters consensus outcomes, and computes optimal position sizing using a **Binary Fractional Kelly Criterion**.
 
 ---
 
-## 📌 Főbb Jellemzők
+## 📦 Stack & Core Dependencies
 
-* **Élő Leaderboard Integráció (Data API):** A Polymarket legeredményesebb kereskedőinek automatikus lekérése valós PnL és volumen alapján a `/v1/leaderboard` végpontról.
-* **Párhuzamosított Adatgyűjtés (`ThreadPoolExecutor`):** Akár 50–200 bálna élő, nyitott fogadásainak másodpercek alatti párhuzamos lekérése.
-* **Dinamikus Kimenetel- és Piackezelés:** Helyesen kezeli a bináris (`YES` / `NO`), valamint a két- és többesélyes sportpiacokat (pl. valódi csapatnevek, hendikepek/spreads).
-* **Kvantitatív Konszenzus Motor:**
-  * Konszenzus arány (%) és domináns tőke számítása.
-  * Súlyozott átlagos belépési ár (**VWAP**).
-  * A résztvevő bálnák átlagos történelmi találati aránya (Win Rate).
-* **Pozícióméretezés & Kockázatkezelés:**
-  * **Opportunity Score (0–100%):** A konszenzus erejét, bálnák számát, tőkét és piaci félreárazást összegző kvantitatív pontszám.
-  * **Bináris Fél-Kelly-méretezés:** Matematikailag optimalizált tétnagyság a megadott portfólióméret alapján, 10%-os kockázati sapkával (`Safety Cap`).
-* **Interaktív Streamlit Felület:**
-  * Valós idejű KPI kártyák és rendezhető, szűrhető konszenzus táblázat.
-  * **Közvetlen piaclinkek (`LinkColumn`):** Egy kattintással megnyitható az élő esemény a Polymarketen.
-  * **Deep-Dive Tárcavizsgáló:** Részletes lista arról, hogy az adott piacon melyik bálna mekkora összeggel és milyen áron van bent.
-* **Hálózati Hibatűrés:** Beépített proxy-támogatás és determinisztikus szintetikus mock-generátor API-kimaradás esetére.
+| Component | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Runtime** | Python | `>= 3.10` | Core application runtime |
+| **Frontend Dashboard** | Streamlit | `>= 1.35.0` | Reactive web interface & metric cards |
+| **Live UI Refresh** | streamlit-autorefresh | `>= 1.0.1` | Automatic interval-based polling |
+| **Data Validation** | Pydantic | `>= 2.7.0` | Strict data typing and validation schemas |
+| **Async / HTTP Client** | HTTPX (with SOCKS) | `>= 0.27.0` | High-throughput, proxy-aware HTTP requests |
+| **Data Analytics** | Pandas / NumPy | `>= 2.2.0 / >= 1.26.0` | Position aggregation & weighted averages |
+| **Visualization** | Plotly Express | `>= 5.22.0` | Interactive exposure & consensus scatter plots |
 
 ---
 
-## 🏗️ Projektstruktúra
+## ⚡ Key Features
+
+- **Live Leaderboard Ingestion (Data API):** Fetches the top-performing traders directly from Polymarket's official `/v1/leaderboard` endpoint sorted by PnL and volume.
+- **Concurrent Position Scanning (`ThreadPoolExecutor`):** Parallelized worker threads scan 50–200 whale wallets simultaneously in seconds without blocking the UI.
+- **Dynamic Market & Outcome Parsing:** Supports both binary options (`YES` / `NO`) and multi-choice sports fixtures (extracting actual team names, spreads, and moneyline labels).
+- **Consensus & Clustering Engine:**
+  - Evaluates dominant vs. opposing capital and calculates the consensus ratio (`%`).
+  - Computes Volume-Weighted Average Price (**VWAP**) and current market prices.
+  - Aggregates historical win-rates of participating smart-money traders.
+- **Quantitative Decision Engine:**
+  - **Opportunity Score (0–100%):** Multi-factor scoring model combining consensus strength, whale count, volume concentration, and mispricing edge.
+  - **Fractional Kelly Sizing:** Binary-option Kelly sizing engine configured with a configurable risk profile (e.g., Half-Kelly) and a strict 10% portfolio capital cap.
+- **Interactive Web Dashboard:**
+  - High-level KPI metrics (tracked whales, aggregate capital, top PnL).
+  - Searchable, sortable consensus radar with **1-click direct link to live Polymarket events**.
+  - **Deep-Dive Wallet Inspector:** Granular breakdown of individual wallet allocations, entry prices, and win rates for any selected market.
+- **Fault-Tolerant Architecture:** Built-in proxy support (HTTP/SOCKS5) and synthetic mock generation fallback for zero-downtime offline testing.
+
+---
+
+## 📁 Repository Structure
 
 ```text
 polymarket_whale_tracker/
-├── config.py              # Konfiguráció, API URL-ek, küszöbértékek
-├── models.py              # Pydantic modellek (Trader, Position, ConsensusMarket)
-├── client.py              # Polymarket Data & Gamma API kliens (többszálú)
-├── analytics.py           # Konszenzus-algoritmus, Opportunity Score és Kelly-méretezés
-├── app.py                 # Streamlit webes dashboard és vizualizáció
-├── test_connection.py     # Hálózati és API kapcsolat-ellenőrző segédszkript
-├── requirements.txt       # Szükséges Python könyvtárak
-└── README.md              # Rendszerleírás és dokumentáció
+├── config.py              # Central application settings, API URLs & safety caps
+├── models.py              # Pydantic schemas (Trader, Position, ConsensusMarket)
+├── client.py              # Parallelized Polymarket Data & Gamma API client
+├── analytics.py           # Consensus clustering, Opportunity Score & Kelly engine
+├── app.py                 # Streamlit web dashboard and visualization layer
+├── test_connection.py     # Standalone diagnostic test script for network & API access
+├── requirements.txt       # Pinned library dependencies
+└── README.md              # Project documentation
 ```
 
 ---
 
-## 📐 Matematikai és Döntési Logika
+## 📐 Mathematical Formulation
 
-### 1. Opportunity Score (0 – 100 pont)
-Az algoritmus az alábbi faktorokat súlyozza:
-1. **Konszenzus Arány (max. 35 pont):** A domináns kimenetel tőkeértéke a teljes bálna-kitettséghez viszonyítva.
-2. **Bálnák Száma (max. 25 pont):** Hány különálló top kereskedő van ugyanazon a kimenetelen (8+ bálnánál éri el a maximumot).
-3. **Kereskedői Minőség (max. 20 pont):** A domináns oldalon álló bálnák átlagos nyerési aránya (Win Rate).
-4. **Tőke Koncentráció (max. 15 pont):** Logaritmikusan skálázott dollár-kitettség.
-5. **Árelőny (max. 5 pont):** Mennyire van még diszkont az aktuális piaci áron (`1 - ár`).
+### 1. Opportunity Score (0 – 100)
+The composite opportunity score aggregates five distinct quantitative dimensions:
 
-### 2. Bináris Opciós Kelly-méretezés
-A modell predikciós piacokra optimalizált Kelly-képletet használ:
+1. **Consensus Dominance ($35\text{ pts}$):** Ratio of dominant capital relative to total whale capital in the market ($>50\%$).
+2. **Whale Count Depth ($25\text{ pts}$):** Distinct smart money accounts on the dominant side (maxed out at $8+$ whales).
+3. **Smart Money Quality ($20\text{ pts}$):** Average historical win-rate of the contributing whales.
+4. **Capital Conviction ($15\text{ pts}$):** Logarithmically scaled USD capital commitment.
+5. **Discount Edge ($5\text{ pts}$):** Pricing buffer based on entry level vs. terminal payout ($1 - c$).
+
+$$\text{Score} = \text{clamp}\Big(S_{\text{consensus}} + S_{\text{count}} + S_{\text{quality}} + S_{\text{capital}} + S_{\text{price}},\, 0,\, 100\Big)$$
+
+### 2. Binary Fractional Kelly Sizing
+To determine the suggested wager from the user's available bankroll without risking ruin, the engine uses the binary contract Kelly formula:
 
 $$f^* = \lambda \cdot \frac{p - c}{1 - c}$$
 
-* $c \in (0, 1)$: a piac aktuális belépési ára (implikált piaci esély),
-* $p$: a bálnák konszenzusa és átlagos találati aránya alapján korrigált becsült valószínűség,
-* $\lambda$: kockázati szorzó (alapértelmezett: $0.5$ a Fél-Kelly stratégiához a variancia csökkentése érdekében),
-* A javasolt tétösszeg maximum a teljes tőke 10%-a lehet az egyedi pozíciókockázat elkerülésére.
+Where:
+- $c \in (0, 1)$: Current market price (implied market probability).
+- $p \in (0, 1)$: Adjusted win probability estimated from whale consensus and win rates.
+- $\lambda$: Kelly fraction multiplier ($\lambda = 0.5$ for Half-Kelly).
+- $\text{Safety Cap}$: The maximum capital allocated to any single opportunity is strictly capped at $10\%$ of total bankroll.
 
 ---
 
-## 🚀 Telepítés és Beüzemelés
+## 🚀 Getting Started
 
-### 1. Előfeltételek
-* Python 3.10 vagy újabb.
-* **Hálózati kapcsolat:** Magyarországi internetszolgáltatók esetén az SNI/DPI blokkolás miatt az API eléréséhez ajánlott az ingyenes **Cloudflare 1.1.1.1 with WARP** (vagy tetszőleges VPN / Proxy) használata.
+### 1. Prerequisites
+- **Python 3.10+**
+- **Network Note:** In regions where Polymarket domains are restricted at the ISP level (DPI/SNI filtering), active routing via **Cloudflare 1.1.1.1 with WARP** (free) or a standard VPN/Proxy is recommended.
 
-### 2. Függőségek telepítése
+### 2. Installation
 ```bash
-# Klónozd a tárolót
+# Clone the repository
 git clone [https://github.com/cyberakos/polymarket-whale-tracker.git](https://github.com/cyberakos/polymarket-whale-tracker.git)
 cd polymarket-whale-tracker
 
-# Virtuális környezet létrehozása és aktiválása (opcionális, de javasolt)
+# Create and activate virtual environment
 python -m venv venv
 
-# Windows aktiválás:
+# Windows:
 venv\Scripts\activate
-# Linux/macOS aktiválás:
+# Linux / macOS:
 source venv/bin/activate
 
-# Csomagok telepítése
+# Install dependencies
 python -m pip install -r requirements.txt
 ```
 
-### 3. API kapcsolat ellenőrzése
-Mielőtt elindítod a webes felületet, teszteld a kapcsolatot:
+### 3. Verify Live Connectivity
+Run the diagnostic script to confirm clean connectivity to Polymarket's Gamma and Data APIs:
 ```bash
 python test_connection.py
 ```
-Ha a válaszban megjelenik egy aktív piac címe és a ranglista #1 kereskedője (pl. Theo4), a rendszer közvetlenül eléri az élő adatokat.
+*A successful test returns HTTP 200 along with the #1 trader on the global leaderboard (e.g., Theo4).*
 
-### 4. A Dashboard indítása
+### 4. Launch the Dashboard
 ```bash
 python -m streamlit run app.py
 ```
-A kezelőfelület automatikusan megnyílik a böngészőben: `http://localhost:8501`.
+Open your browser at `http://localhost:8501`.
 
 ---
 
-## ⚙️ Dashboard Paraméterek (Sidebar)
+## ⚙️ Dashboard Configuration (Sidebar)
 
-* **Vizsgált Top Bálnák Száma:** 25 és 200 között állítható, hány élvonalbeli kereskedő tárcáját olvassa be és elemezze a motor.
-* **Kereskedési Tőke (USD):** A bankroll összege, amelyből a Kelly-motor kiszámolja az ajánlott tétméretet.
-* **Kelly Kockázati Profil:** 0.25x és 1.0x között skálázható tőkearány (0.5x az ajánlott Fél-Kelly).
-* **Minimális Bálna Egyezés:** Küszöbérték arra, hogy legalább hány bálnának kell azonos oldalon állnia (alapértelmezett: 3).
-* **Minimális Konszenzus Arány (%):** Minimális dominancia-arány az adott oldalon (pl. 75%+).
-* **Automatikus Frissítés:** Állítható intervallum (30 mp, 60 mp, 120 mp stb.) a friss piaci adatok betöltéséhez.
+- **Tracked Top Whales:** Adjustable slider (25 to 200 whales) determining how many top leaderboard accounts to audit.
+- **Trading Bankroll (USD):** Total available portfolio capital used by the sizing algorithm.
+- **Kelly Risk Profile:** Fraction of full Kelly applied (0.25x to 1.0x; default is 0.5x Half-Kelly).
+- **Minimum Whale Consensus:** Threshold for the minimum number of matching whales required to highlight a market.
+- **Minimum Consensus Ratio (%):** Minimum capital dominance percentage required (e.g., $75\%+$).
+- **Auto-Refresh:** Configurable polling interval (30s, 60s, 120s, or Disabled).
 
 ---
 
-## ⚠️ Figyelmeztetés (Disclaimer)
+## ⚠️ Disclaimer
 
-Ez a szoftver kizárólag kutatási, kísérleti és döntéstámogatási célokat szolgál. Nem minősül pénzügyi, befektetési vagy adótanácsadásnak. A predikciós piacokon végzett kereskedés jelentős kockázattal jár. Minden esetben végezz saját kockázatkezelési és piacellenőrzési felmérést a tőkéd allokálása előtt!
+This software is developed strictly for **educational, quantitative research, and decision-support purposes**. It does not constitute financial, investment, or gambling advice. Prediction markets carry substantial risk of capital loss. Always perform independent due diligence and exercise disciplined risk management before allocating real capital.
