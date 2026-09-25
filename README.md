@@ -37,26 +37,42 @@ polymarket_whale_tracker/
 ├── requirements.txt       # Szükséges Python könyvtárak
 └── README.md              # Rendszerleírás és dokumentáció
 ```
-📐 Matematikai és Döntési Logika
-1. Opportunity Score (0 – 100 pont)
+
+---
+
+## 📐 Matematikai és Döntési Logika
+
+### 1. Opportunity Score (0 – 100 pont)
 Az algoritmus az alábbi faktorokat súlyozza:
+1. **Konszenzus Arány (max. 35 pont):** A domináns kimenetel tőkeértéke a teljes bálna-kitettséghez viszonyítva.
+2. **Bálnák Száma (max. 25 pont):** Hány különálló top kereskedő van ugyanazon a kimenetelen (8+ bálnánál éri el a maximumot).
+3. **Kereskedői Minőség (max. 20 pont):** A domináns oldalon álló bálnák átlagos nyerési aránya (Win Rate).
+4. **Tőke Koncentráció (max. 15 pont):** Logaritmikusan skálázott dollár-kitettség.
+5. **Árelőny (max. 5 pont):** Mennyire van még diszkont az aktuális piaci áron (`1 - ár`).
 
-Konszenzus Arány (max. 35 pont): A domináns kimenetel tőkeértéke a teljes bálna-kitettséghez viszonyítva.
-
-Bálnák Száma (max. 25 pont): Hány különálló top kereskedő van ugyanazon a kimenetelen (8+ bálnánál éri el a maximumot).
-
-Kereskedői Minőség (max. 20 pont): A domináns oldalon álló bálnák átlagos nyerési aránya (Win Rate).
-
-Tőke Koncentráció (max. 15 pont): Logaritmikusan skálázott dollár-kitettség.
-
-Árelőny (max. 5 pont): Mennyire van még diszkont az aktuális piaci áron (1 - ár).
-
-2. Bináris Opciós Kelly-méretezés
+### 2. Bináris Opciós Kelly-méretezés
 A modell predikciós piacokra optimalizált Kelly-képletet használ:
-```
+
 $$f^* = \lambda \cdot \frac{p - c}{1 - c}$$
-$c \in (0, 1)$: a piac aktuális belépési ára (implikált piaci esély),$p$: a bálnák konszenzusa és átlagos találati aránya alapján korrigált becsült valószínűség,$\lambda$: kockázati szorzó (alapértelmezett: $0.5$ a Fél-Kelly stratégiához a variancia csökkentése érdekében),A javasolt tétösszeg maximum a teljes tőke 10%-a lehet az egyedi pozíciókockázat elkerülésére.
-```
+
+* $c \in (0, 1)$: a piac aktuális belépési ára (implikált piaci esély),
+* $p$: a bálnák konszenzusa és átlagos találati aránya alapján korrigált becsült valószínűség,
+* $\lambda$: kockázati szorzó (alapértelmezett: $0.5$ a Fél-Kelly stratégiához a variancia csökkentése érdekében),
+* A javasolt tétösszeg maximum a teljes tőke 10%-a lehet az egyedi pozíciókockázat elkerülésére.
+
+---
+
+## 🚀 Telepítés és Beüzemelés
+
+### 1. Előfeltételek
+* Python 3.10 vagy újabb.
+* **Hálózati kapcsolat:** Magyarországi internetszolgáltatók esetén az SNI/DPI blokkolás miatt az API eléréséhez ajánlott az ingyenes **Cloudflare 1.1.1.1 with WARP** (vagy tetszőleges VPN / Proxy) használata.
+
+### 2. Függőségek telepítése
+```bash
+# Klónozd a tárolót
+git clone [https://github.com/cyberakos/polymarket-whale-tracker.git](https://github.com/cyberakos/polymarket-whale-tracker.git)
+cd polymarket-whale-tracker
 
 # Virtuális környezet létrehozása és aktiválása (opcionális, de javasolt)
 python -m venv venv
@@ -68,6 +84,34 @@ source venv/bin/activate
 
 # Csomagok telepítése
 python -m pip install -r requirements.txt
-3. API kapcsolat ellenőrzéseMielőtt elindítod a webes felületet, teszteld a kapcsolatot:Bashpython test_connection.py
-Ha a válaszban megjelenik egy aktív piac címe és a ranglista #1 kereskedője (pl. Theo4), a rendszer közvetlenül eléri az élő adatokat.4. A Dashboard indításaBashpython -m streamlit run app.py
-A kezelőfelület automatikusan megnyílik a böngészőben: http://localhost:8501.⚙️ Dashboard Paraméterek (Sidebar)Vizsgált Top Bálnák Száma: 25 és 200 között állítható, hány élvonalbeli kereskedő tárcáját olvassa be és elemezze a motor.Kereskedési Tőke (USD): A bankroll összege, amelyből a Kelly-motor kiszámolja az ajánlott tétméretet.Kelly Kockázati Profil: 0.25x és 1.0x között skálázható tőkearány (0.5x az ajánlott Fél-Kelly).Minimális Bálna Egyezés: Küszöbérték arra, hogy legalább hány bálnának kell azonos oldalon állnia (alapértelmezett: 3).Minimális Konszenzus Arány (%): Minimális dominancia-arány az adott oldalon (pl. 75%+).Automatikus Frissítés: Állítható intervallum (30 mp, 60 mp, 120 mp stb.) a friss piaci adatok betöltéséhez.⚠️ Figyelmeztetés (Disclaimer)Ez a szoftver kizárólag kutatási, kísérleti és döntéstámogatási célokat szolgál. Nem minősül pénzügyi, befektetési vagy adótanácsadásnak. A predikciós piacokon végzett kereskedés jelentős kockázattal jár. Minden esetben végezz saját kockázatkezelési és piacellenőrzési felmérést a tőkéd allokálása előtt!
+```
+
+### 3. API kapcsolat ellenőrzése
+Mielőtt elindítod a webes felületet, teszteld a kapcsolatot:
+```bash
+python test_connection.py
+```
+Ha a válaszban megjelenik egy aktív piac címe és a ranglista #1 kereskedője (pl. Theo4), a rendszer közvetlenül eléri az élő adatokat.
+
+### 4. A Dashboard indítása
+```bash
+python -m streamlit run app.py
+```
+A kezelőfelület automatikusan megnyílik a böngészőben: `http://localhost:8501`.
+
+---
+
+## ⚙️ Dashboard Paraméterek (Sidebar)
+
+* **Vizsgált Top Bálnák Száma:** 25 és 200 között állítható, hány élvonalbeli kereskedő tárcáját olvassa be és elemezze a motor.
+* **Kereskedési Tőke (USD):** A bankroll összege, amelyből a Kelly-motor kiszámolja az ajánlott tétméretet.
+* **Kelly Kockázati Profil:** 0.25x és 1.0x között skálázható tőkearány (0.5x az ajánlott Fél-Kelly).
+* **Minimális Bálna Egyezés:** Küszöbérték arra, hogy legalább hány bálnának kell azonos oldalon állnia (alapértelmezett: 3).
+* **Minimális Konszenzus Arány (%):** Minimális dominancia-arány az adott oldalon (pl. 75%+).
+* **Automatikus Frissítés:** Állítható intervallum (30 mp, 60 mp, 120 mp stb.) a friss piaci adatok betöltéséhez.
+
+---
+
+## ⚠️ Figyelmeztetés (Disclaimer)
+
+Ez a szoftver kizárólag kutatási, kísérleti és döntéstámogatási célokat szolgál. Nem minősül pénzügyi, befektetési vagy adótanácsadásnak. A predikciós piacokon végzett kereskedés jelentős kockázattal jár. Minden esetben végezz saját kockázatkezelési és piacellenőrzési felmérést a tőkéd allokálása előtt!
